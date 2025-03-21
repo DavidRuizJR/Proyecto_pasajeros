@@ -51,7 +51,3 @@ Las dependencias de Python para cada microservicio se encuentran en los archivos
 ## Contribución
 
 Las contribuciones son bienvenidas. Si encuentras algún problema o tienes alguna sugerencia, no dudes en abrir un issue o enviar un pull request.
-
-## Licencia
-
-Este proyecto está bajo la licencia [Indica aquí la licencia].
