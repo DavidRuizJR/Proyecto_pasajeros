@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  pasajeros-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: jdrt
+      POSTGRES_PASSWORD: traxi_prueba
+      POSTGRES_DB: pasajeros
+    ports:
+      - "5432:5432"
+    volumes:
+      - pasajeros-db-data:/var/lib/postgresql/data
+
+  reservas-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: jdrt
+      POSTGRES_PASSWORD: traxi_prueba
+      POSTGRES_DB: reservas
+    ports:
+      - "5433:5432"
+    volumes:
+      - reservas-db-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq-data:

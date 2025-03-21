@@ -3,13 +3,10 @@ import pika
 import os
 import json
 import requests
-import threading
-from src.pasajeros.database.models import Pasajeros
-from src.pasajeros.database.db import db
 
 
-rabbitmq_host = os.environ.get('RABBITMQ_HOST', 'rabbitmq')
-connection = pika.BlockingConnection(pika.ConnectionParameters(rabbitmq_host,5672))
+# rabbitmq_host = os.environ.get('RABBITMQ_HOST', '172.17.0.1')
+connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost",credentials=pika.PlainCredentials('guest', 'guest')))
 channel = connection.channel()
 
 

@@ -1,5 +1,5 @@
 import uuid
-from src.pasajeros.database.db import db
+from database.db import db
 from sqlalchemy import DateTime, func
 import sqlalchemy as sa
 

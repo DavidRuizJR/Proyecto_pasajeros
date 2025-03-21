@@ -1,7 +1,6 @@
 from typing import List
 from pydantic import Field, BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
-import uuid
 
 
 class PasajeroSchema(BaseModel):

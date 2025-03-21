@@ -1,7 +1,7 @@
-from src.pasajeros.database.db import db
-from src.pasajeros.database.models import Pasajeros
+from database.db import db
+from database.models import Pasajeros
 from flask import jsonify
-from src.pasajeros.utils.validadores import PasajeroSchema,PasajerosListSchema
+from utils.validadores import PasajeroSchema,PasajerosListSchema
 from pydantic import ValidationError
 
 

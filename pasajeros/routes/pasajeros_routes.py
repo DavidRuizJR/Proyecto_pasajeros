@@ -1,12 +1,12 @@
 from flask import request, jsonify
 from flask_pydantic import validate
 from pydantic import ValidationError
-from src.pasajeros.database import db
-from src.pasajeros.database.models import Pasajeros
-from src.pasajeros.services.pasajeros_service import cargar_pasajeros_masivo
-from src.pasajeros.utils.validadores import PasajeroSchema
-from src.pasajeros.blueprints import pasajeros_bp
-from src.pasajeros.services.pasajeros_service import validar_actualizar_pasajero
+from database import db
+from database.models import Pasajeros
+# from pasajeros.services.pasajeros_service import cargar_pasajeros_masivo
+from utils.validadores import PasajeroSchema
+from blueprints import pasajeros_bp
+from services.pasajeros_service import validar_actualizar_pasajero
 
 
 
@@ -40,14 +40,14 @@ def validar_pasajeros():
         return jsonify({"error": str(e)}), 500
 
 
-@pasajeros_bp.route('/load_massive', methods=['POST'])
-def load_massive():
-    data = request.get_json()
-    try:
-        cargar_pasajeros_masivo(data)
-        return jsonify({"message": "Carga masiva completada"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+# @pasajeros_bp.route('/load_massive', methods=['POST'])
+# def load_massive():
+#     data = request.get_json()
+#     try:
+#         cargar_pasajeros_masivo(data)
+#         return jsonify({"message": "Carga masiva completada"}), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 
 
 @pasajeros_bp.errorhandler(ValidationError)
