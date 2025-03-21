@@ -1,5 +1,10 @@
 # pasajeros/docker-compose.yml
 version: "3.8"
+
+networks:
+  rabbitmq_network:
+    external: true 
+
 services:
   pasajeros-db:
     image: postgres:13
@@ -16,9 +21,13 @@ services:
     build: .
     ports:
       - "5001:5001"
+    networks:
+      - rabbitmq_network
     environment:
       DATABASE_URL: postgresql://jdrt:traxi_prueba@pasajeros-db:5432/pasajeros
-      RABBITMQ_HOST: 172.17.0.1
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+
     depends_on:
       - pasajeros-db
 

@@ -11,7 +11,7 @@ COPY . .
 ENV FLASK_APP pasajeros_app.py
 ENV FLASK_RUN_PORT 5001
 ENV DATABASE_URL postgresql://jdrt:traxi_prueba@pasajeros-db:5432/pasajeros
-ENV RABBITMQ_URL 172.17.0.1
+ENV RABBITMQ_URL rabbitmq
 
 
 CMD ["flask", "run", "--host", "0.0.0.0"]
