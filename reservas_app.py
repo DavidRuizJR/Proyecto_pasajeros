@@ -1,7 +1,7 @@
 from flask import Flask
 from src.reservas.database.db import init_db
 from src.reservas.blueprints import reserva_bp
-from src.events import setup_rabbitmq 
+from src.reservas.utils.events import setup_rabbitmq 
 
 
 

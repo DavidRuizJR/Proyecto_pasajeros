@@ -1,7 +1,7 @@
 from flask import Flask
 from src.pasajeros.database.db import init_db
 from src.pasajeros.blueprints import pasajeros_bp
-from src.events import setup_rabbitmq
+from src.pasajeros.utils.events import setup_rabbitmq
 
 
 

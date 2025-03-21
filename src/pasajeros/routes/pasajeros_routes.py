@@ -5,7 +5,8 @@ from src.pasajeros.database import db
 from src.pasajeros.database.models import Pasajeros
 from src.pasajeros.services.pasajeros_service import cargar_pasajeros_masivo
 from src.pasajeros.utils.validadores import PasajeroSchema
-from src.reservas.blueprints import pasajeros_bp
+from src.pasajeros.blueprints import pasajeros_bp
+from src.pasajeros.services.pasajeros_service import validar_actualizar_pasajero
 
 
 
@@ -21,17 +22,19 @@ def crear(body: PasajeroSchema):
         return jsonify({"error": str(e)}), 500
 
 
-@pasajeros_bp.route('/<int:id>', methods=['PUT'])
+@pasajeros_bp.route('/validar_pasajeros', methods=['POST'])
 @validate()
-def actualizar(id: int, body: PasajeroSchema):
-    pasajero = Pasajeros.query.get(id)
-    if not pasajero:
-        return jsonify({"error": "Pasajero no encontrado"}), 404
+def validar_pasajeros(id: int, body: PasajeroSchema):
     try:
-        pasajero.nombre = body.nombre
-        pasajero.email = body.email
-        db.session.commit()
-        return jsonify({"message": "Pasajero actualizado"}), 200
+        data = request.get_json()
+        pasajeros_data = data.get("pasajeros",[])
+        pasajeros_validos, pasajeros_invalidos = validar_actualizar_pasajero(pasajeros_data)
+    
+        return jsonify({
+            "valid_passengers": pasajeros_validos,
+            "invalid_passengers": pasajeros_invalidos
+        }), 200
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -44,6 +47,7 @@ def load_massive():
         return jsonify({"message": "Carga masiva completada"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @pasajeros_bp.errorhandler(ValidationError)
 def validation_error(e):

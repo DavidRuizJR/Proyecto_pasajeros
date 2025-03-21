@@ -2,21 +2,20 @@ from src.pasajeros.database.db import db
 from src.pasajeros.database.models import Pasajeros
 import json
 import threading
-import os
-import psycopg2
+# import psycopg2
 from src.pasajeros.utils.events import consume_messages, start_consuming
 from flask import jsonify
 from src.pasajeros.utils.validadores import PasajeroSchema,PasajerosListSchema
 from pydantic import ValidationError
 
 
-def cargar_pasajeros_masivo(data):
-    conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
-    cur = conn.cursor()
-    psycopg2.extras.execute_batch(cur, "INSERT INTO pasajero (nombre, email) VALUES (%s, %s)", data)
-    conn.commit()
-    cur.close()
-    conn.close()
+# def cargar_pasajeros_masivo(data):
+#     conn = psycopg2.connect(os.environ.get('DATABASE_URL'))
+#     cur = conn.cursor()
+#     psycopg2.extras.execute_batch(cur, "INSERT INTO pasajero (nombre, email) VALUES (%s, %s)", data)
+#     conn.commit()
+#     cur.close()
+#     conn.close()
 
 def validar_actualizar_pasajero(pasajeros):
     pasajeros_validos = []
@@ -40,9 +39,12 @@ def validar_actualizar_pasajero(pasajeros):
             else:
                 pasajeros_invalidos.append(pasajero_obj.uuid)
                 return jsonify({"error": "Pasajero no encontrado"}), 404
+            
         except ValidationError as e:
             pasajeros_invalidos.append(pasajero.get("id", "desconocido"))
+
     return pasajeros_validos, pasajeros_invalidos
+
 
 def callback(ch, method, properties, body):
     message = json.loads(body)

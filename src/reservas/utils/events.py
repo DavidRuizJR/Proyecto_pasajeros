@@ -8,57 +8,55 @@ rabbitmq_host = os.environ.get('RABBITMQ_HOST', 'localhost')
 connection = pika.BlockingConnection(pika.ConnectionParameters(rabbitmq_host))
 channel = connection.channel()
 
-def setup_rabbitmq():
-    channel.queue_declare(queue='pasajero_updates',durable=True)
 
-def publish_message(queue, message):
-    channel.basic_publish(exchange='', routing_key=queue, body=json.dumps(message),properties=pika.BasicProperties(delivery_mode=2))
+import pika
+import json
 
-def consume_messages(queue, callback):
-    channel.basic_consume(queue=queue, on_message_callback=callback)
+def enviar_validacion_pasajeros(pasajeros):
+    channel.queue_declare(queue='validate_passengers', durable=True)
 
-def start_consuming():
-    channel.start_consuming()
+    mensaje = json.dumps({
+        "event": "validate_passengers",
+        "pasajeros": pasajeros
+    })
 
-def close_connection():
-    connection.close()
+    channel.basic_publish(exchange='', routing_key='validate_passengers', body=mensaje, properties=pika.BasicProperties(delivery_mode=2))
+    close_connection()
+
+    print("📤 Enviando pasajeros a validar...")
 
 
 
 def callback(ch, method, properties, body):
     try:
-        message = json.loads(body)
-        if message.get("event") == "validate_passengers":
-            pasajeros_data = message.get("pasajeros", [])
+        mensaje = json.loads(body)
+        if mensaje.get("event") == "pasajeros_validos":
+            validos = mensaje.get("valid_passengers", [])
+            invalidos = mensaje.get("invalid_passengers", [])
 
-            # Llamar a la API de validación del microservicio
-            response = requests.post("http://localhost:5001/validar_pasajeros", json={"pasajeros": pasajeros_data})
-            response_data = response.json()
+            print(f"✅ Pasajeros válidos: {validos}")
+            print(f"❌ Pasajeros inválidos: {invalidos}")
 
-            # Publicar resultado en RabbitMQ
-            connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-            channel = connection.channel()
-            channel.queue_declare(queue='validated_passengers', durable=True)
-            channel.basic_publish(exchange='', routing_key='validated_passengers', body=json.dumps({
-                "event": "validated_passengers",
-                "valid_passengers": response_data.get("valid_passengers", []),
-                "invalid_passengers": response_data.get("invalid_passengers", [])
-            }))
-            connection.close()
-
-            print(f"✅ Pasajeros válidos: {response_data.get('valid_passengers')} | ❌ Pasajeros inválidos: {response_data.get('invalid_passengers')}")
+            if validos:
+                procesar_reserva_con_pasajeros(validos)
 
     except json.JSONDecodeError:
         print("⚠️ Error: JSON inválido")
-    except requests.RequestException as e:
-        print(f"⚠️ Error llamando a la API de validación: {e}")
 
-# Iniciar el consumidor
 def start_consumer():
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
-    channel.queue_declare(queue='validate_passengers', durable=True)
-    channel.basic_consume(queue='validate_passengers', on_message_callback=callback, auto_ack=True)
+    
 
-    print(" [*] Esperando mensajes de validación de pasajeros...")
+    print(" [*] Esperando validaciones de pasajeros...")
     channel.start_consuming()
+
+
+def setup_rabbitmq():
+    channel.queue_declare(queue='pasajeros_validos', durable=True)
+    channel.basic_consume(queue='pasajeros_validos', on_message_callback=callback, auto_ack=True)
+    channel.start_consuming()
+
+def close_connection():
+    connection.close()
+
