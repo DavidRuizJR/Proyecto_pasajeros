@@ -1,9 +1,5 @@
 from src.pasajeros.database.db import db
 from src.pasajeros.database.models import Pasajeros
-import json
-import threading
-# import psycopg2
-from src.pasajeros.utils.events import consume_messages, start_consuming
 from flask import jsonify
 from src.pasajeros.utils.validadores import PasajeroSchema,PasajerosListSchema
 from pydantic import ValidationError
@@ -45,21 +41,3 @@ def validar_actualizar_pasajero(pasajeros):
 
     return pasajeros_validos, pasajeros_invalidos
 
-
-def callback(ch, method, properties, body):
-    message = json.loads(body)
-    pasajero = Pasajeros.query.get(message['pasajero_id'])
-    if pasajero:
-        pasajero.nombre = message['nombre']
-        pasajero.email = message['email']
-        db.session.commit()
-    ch.basic_ack(delivery_tag=method.delivery_tag)
-
-def iniciar_consumidor():
-    consume_messages(queue='pasajero_updates', callback=callback)
-    start_consuming()
-
-def iniciar_consumidor_en_hilo():
-    thread = threading.Thread(target=iniciar_consumidor)
-    thread.daemon = True
-    thread.start()

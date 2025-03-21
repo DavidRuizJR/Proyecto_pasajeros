@@ -14,6 +14,7 @@ from src.pasajeros.services.pasajeros_service import validar_actualizar_pasajero
 @validate()
 def crear(body: PasajeroSchema):
     try:
+        print("entro aqui")
         nuevo_pasajero = Pasajeros(nombre=body.nombre, email=body.email)
         db.session.add(nuevo_pasajero)
         db.session.commit()
@@ -24,7 +25,7 @@ def crear(body: PasajeroSchema):
 
 @pasajeros_bp.route('/validar_pasajeros', methods=['POST'])
 @validate()
-def validar_pasajeros(id: int, body: PasajeroSchema):
+def validar_pasajeros():
     try:
         data = request.get_json()
         pasajeros_data = data.get("pasajeros",[])

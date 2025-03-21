@@ -1,13 +1,13 @@
 from flask import Flask
-from src.pasajeros.database.db import init_db
-from src.pasajeros.blueprints import pasajeros_bp
-from src.pasajeros.utils.events import setup_rabbitmq
+from .src.pasajeros.database.db import init_db
+from .src.pasajeros.blueprints import pasajeros_bp
+from .src.pasajeros.utils.events import setup_rabbitmq
 
 
 
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://jdrt:traxi_prueba@localhost/pasajeros'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://jdrt:traxi_prueba@pasajeros-db:5432/pasajeros'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     init_db(app)
     setup_rabbitmq()

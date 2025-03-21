@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - pasajeros-db-data:/var/lib/postgresql/data
+
   reservas-db:
     image: postgres:13
     environment:
@@ -20,6 +21,7 @@ services:
       - "5433:5432"
     volumes:
       - reservas-db-data:/var/lib/postgresql/data
+
   rabbitmq:
     image: rabbitmq:3.9-management
     ports:
@@ -27,6 +29,31 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+
+  pasajeros:
+    build: 
+      context: .  # El contexto es el directorio actual (donde está docker-compose.yml)
+      dockerfile: Dockerfile_reserva
+    ports:
+      - "5001:5001"
+    environment:
+      DATABASE_URL: postgresql://jdrt:traxi_prueba@pasajeros-db:5432/pasajeros
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      - pasajeros-db
+      - rabbitmq
+  reservas:
+    build: 
+      context: .  # El contexto es el directorio actual (donde está docker-compose.yml)
+      dockerfile: Dockerfile_pasajero
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://jdrt:traxi_prueba@reservas-db:5432/reservas
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      - reservas-db
+      - rabbitmq
 volumes:
   pasajeros-db-data:
   reservas-db-data:

@@ -8,15 +8,15 @@ from src.pasajeros.database.models import Pasajeros
 from src.pasajeros.database.db import db
 
 
-rabbitmq_host = os.environ.get('RABBITMQ_HOST', 'localhost')
-connection = pika.BlockingConnection(pika.ConnectionParameters(rabbitmq_host))
+rabbitmq_host = os.environ.get('RABBITMQ_HOST', 'rabbitmq')
+connection = pika.BlockingConnection(pika.ConnectionParameters(rabbitmq_host,5672))
 channel = connection.channel()
 
 
 def callback(ch, method, properties, body):
     try:
         message = json.loads(body)
-        if message.get("event") == "validate_passengers":
+        if message.get("event") == "pasajeros_validados":
             pasajeros_data = message.get("pasajeros", [])
 
             # Llamar a la API de validación del microservicio
@@ -24,16 +24,16 @@ def callback(ch, method, properties, body):
             response_data = response.json()
 
             # Publicar resultado en RabbitMQ
-            channel.queue_declare(queue='validated_passengers', durable=True)
-            channel.basic_publish(exchange='', routing_key='validated_passengers', body=json.dumps({
-                "event": "validated_passengers",
-                "valid_passengers": response_data.get("valid_passengers", []),
-                "invalid_passengers": response_data.get("invalid_passengers", [])
+            channel.queue_declare(queue='p', durable=True)
+            channel.basic_publish(exchange='', routing_key='pasajeros_validados', body=json.dumps({
+                "event": "pasajeros_validados",
+                "pasajeros_validos": response_data.get("validos", []),
+                "pasajeros_invalidos": response_data.get("invalidos", [])
             }),properties=pika.BasicProperties(delivery_mode=2))
 
             close_connection()
 
-            print(f"✅ Pasajeros válidos: {response_data.get('valid_passengers')} | ❌ Pasajeros inválidos: {response_data.get('invalid_passengers')}")
+            print(f"✅ Pasajeros válidos: {response_data.get('pasajeros_validados')} | ❌ Pasajeros inválidos: {response_data.get('invalid_passengers')}")
     except json.JSONDecodeError:
         print("⚠️ Error: JSON inválido")
     except requests.RequestException as e:
